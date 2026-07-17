@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>v_memory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --white: #ffffff;
+            --light: #e0e0e0;
+            --mid: #aaaaaa;
+            --dark: #2a2a2a;
+            --black: #0e0e0e;
+            --border: rgba(255, 255, 255, 0.15);
+            --border-hover: rgba(255, 255, 255, 0.3);
+            --card-bg: rgba(25, 25, 25, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            background:
+                radial-gradient(ellipse 600px 600px at 3% -8%, rgba(90, 106, 128, 0.5), transparent 65%),
+                radial-gradient(ellipse 550px 550px at 100% 108%, rgba(110, 120, 135, 0.45), transparent 65%),
+                var(--black);
+            height: 100%;
+            min-height: 100dvh;
+            overscroll-behavior: none;
+            color: var(--white);
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        button {
+            font-family: inherit;
+            border-radius: 0;
+        }
+
+        .bg-parallax {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .orb-wrapper {
+            position: absolute;
+            will-change: transform;
+        }
+
+        .orb {
+            border-radius: 0;
+            filter: blur(60px);
+        }
+
+        .orb-1 {
+            width: 540px;
+            height: 540px;
+            background: #5d6a7e;
+            animation: float1 22s ease-in-out infinite;
+            top: -8%;
+            left: 3%;
+        }
+
+        .orb-2 {
+            width: 480px;
+            height: 480px;
+            background: #707a86;
+            animation: float2 28s ease-in-out infinite;
+            bottom: -12%;
+            right: 5%;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: #606a75;
+            animation: float3 19s ease-in-out infinite;
+            top: 45%;
+            left: 48%;
+        }
+
+        @keyframes float1 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(60px, 80px) scale(1.05);
+            }
+        }
+
+        @keyframes float2 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(-70px, -50px) scale(0.95);
+            }
+        }
+
+        @keyframes float3 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(50px, -60px) scale(1.08);
+            }
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.05;
+            mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        main {
+            position: relative;
+            z-index: 3;
+            height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+    width: fit-content;
+    max-width: 90vw;
+    aspect-ratio: unset;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    padding: 20px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    animation: cardEntry 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+        @keyframes cardEntry {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.96);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 24px;
+            letter-spacing: -1px;
+            text-transform: lowercase;
+            color: var(--white);
+            position: relative;
+            display: inline-block;
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: 4px;
+            width: 5px;
+            height: 5px;
+            background: var(--white);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-box {
+            text-align: right;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--mid);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--white);
+        }
+
+        .game-container {
+    position: relative;
+    width: min(70vw, 60dvh);
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+        #grid {
+            display: grid;
+            gap: 4px;
+            height: 100%;
+            aspect-ratio: 1;
+            max-width: 100%;
+        }
+
+        .cell {
+            background: rgba(255, 255, 255, 0.18);
+            /* Brightened default cell */
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.05s ease;
+        }
+
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .cell:active {
+            transform: scale(0.95);
+        }
+
+        .cell.highlight,
+        .cell.selected {
+            background: var(--white);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .cell.wrong {
+            background: rgba(255, 77, 77, 0.7);
+            animation: shake 0.3s ease;
+        }
+
+        .cell.missed {
+            background: rgba(210, 153, 34, 0.7);
+            animation: pulse 0.5s ease infinite alternate;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-4px);
+            }
+
+            75% {
+                transform: translateX(4px);
+            }
+        }
+
+        @keyframes pulse {
+            from {
+                opacity: 0.7;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(14, 14, 14, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear;
+        }
+
+        #overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+        }
+
+        .overlay-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            width: 80%;
+        }
+
+        .overlay-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 26px;
+            letter-spacing: -1px;
+            text-transform: lowercase;
+            color: var(--white);
+        }
+
+        .overlay-desc {
+            font-size: 10px;
+            color: var(--mid);
+            text-align: center;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: -12px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 16px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+        }
+
+        label {
+            font-size: 9px;
+            color: var(--mid);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-align: center;
+        }
+
+        input {
+            background: rgba(0, 0, 0, 0.4);
+            color: var(--white);
+            border: 1px solid var(--border);
+            padding: 8px;
+            border-radius: 0;
+            outline: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            text-align: center;
+            width: 100%;
+            transition: border 0.2s ease;
+        }
+
+        input:focus {
+            border-color: var(--white);
+        }
+
+        .tweak-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--mid);
+            padding: 8px 16px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tweak-btn:hover {
+            border-color: var(--border-hover);
+            color: var(--white);
+        }
+
+        .tweak-btn.active {
+            border-color: var(--white);
+            color: var(--black);
+            background: var(--white);
+        }
+
+        .start-btn {
+            background: var(--white);
+            color: var(--black);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 0;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+            margin-top: 4px;
+        }
+
+        .start-btn:hover {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .start-btn:active {
+            transform: scale(0.97);
+        }
+
+        .esc-hint {
+            position: absolute;
+            bottom: 12px;
+            font-size: 8px;
+            color: var(--mid);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+
+        button:focus-visible,
+        input:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.4);
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-parallax">
+        <div class="orb-wrapper">
+            <div class="orb orb-1"></div>
+        </div>
+        <div class="orb-wrapper">
+            <div class="orb orb-2"></div>
+        </div>
+        <div class="orb-wrapper">
+            <div class="orb orb-3"></div>
+        </div>
+    </div>
+    <div class="noise"></div>
+
+    <main>
+        <div class="card">
+            <div class="header">
+                <h1 class="title">v_memory</h1>
+                <div class="stats">
+                    <div class="stat-box">
+                        <span class="stat-label">Level</span>
+                        <span class="stat-value" id="levelDisplay">1</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Lives</span>
+                        <span class="stat-value" id="livesDisplay">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-container">
+                <div id="grid"></div>
+
+                <div id="overlay">
+                    <div class="overlay-content">
+                        <h2 class="overlay-title" id="overlayTitle">ready</h2>
+                        <p class="overlay-desc" id="overlayDesc">memorize the highlighted blocks</p>
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label>Start Level</label>
+                                <input type="number" id="levelInput" min="1" value="1">
+                            </div>
+                            <div class="input-group">
+                                <label>Grid Size</label>
+                                <input type="number" id="gridCapInput" min="3" value="10">
+                            </div>
+                        </div>
+                        <button class="tweak-btn" id="dragToggle">Tweaks: Drag Select [OFF]</button>
+                        <button class="start-btn" id="startBtn">Start Game</button>
+                    </div>
+                    <span class="esc-hint">Press ESC to pause/resume</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ===== DOM =====
+        const grid = document.getElementById("grid");
+        const overlay = document.getElementById("overlay");
+        const overlayTitle = document.getElementById("overlayTitle");
+        const overlayDesc = document.getElementById("overlayDesc");
+        const startBtn = document.getElementById("startBtn");
+        const dragToggle = document.getElementById("dragToggle");
+        const levelDisplay = document.getElementById("levelDisplay");
+        const livesDisplay = document.getElementById("livesDisplay");
+        const levelInput = document.getElementById("levelInput");
+        const gridCapInput = document.getElementById("gridCapInput");
+
+        // ===== STATE =====
+        let level = 1, lives = 3, gridCap = 10, size = 3, highlightCount = 3;
+        let cells = [];
+        let highlighted = new Set();
+        let selected = new Set();
+        let clickable = false, misclicks = 0, isGameRunning = false, isPaused = false;
+        let dragSelectEnabled = false, isMouseDown = false;
+
+        // ===== AUDIO ENGINE =====
+        let audioCtx = null;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        function playTone(freq, duration, type = 'sine', volume = 0.15) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.value = freq;
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+        function playCorrect() { playTone(800, 0.08, 'sine', 0.1); }
+        function playWrong() { playTone(150, 0.15, 'sawtooth', 0.15); setTimeout(() => playTone(100, 0.2, 'sawtooth', 0.15), 100); }
+        function playShowSound() { playTone(500, 0.1, 'triangle', 0.08); }
+        function playLevelUp() { playTone(523, 0.08, 'sine', 0.12); setTimeout(() => playTone(659, 0.08, 'sine', 0.12), 80); setTimeout(() => playTone(784, 0.15, 'sine', 0.12), 160); }
+        function playGameOver() { playTone(400, 0.15, 'sawtooth', 0.15); setTimeout(() => playTone(300, 0.15, 'sawtooth', 0.15), 150); setTimeout(() => playTone(200, 0.3, 'sawtooth', 0.15), 300); }
+        function playQuit() { playTone(300, 0.1, 'sine', 0.1); setTimeout(() => playTone(200, 0.15, 'sine', 0.1), 80); }
+
+        // ===== GAME LOGIC =====
+        function getGridSize(level) {
+            if (level <= 2) return 3; if (level <= 5) return 4; if (level <= 8) return 5;
+            return 6 + Math.floor((level - 9) / 5);
+        }
+
+        function showOverlay(title, desc, isGameOver = false) {
+            isGameRunning = false;
+            overlayTitle.textContent = title;
+            overlayDesc.textContent = desc;
+            startBtn.textContent = isGameOver ? "Try Again" : "Start Game";
+            overlay.classList.remove("hidden");
+        }
+
+        function startGame() {
+            initAudio();
+            level = Math.max(1, parseInt(levelInput.value) || 1);
+            gridCap = Math.max(3, parseInt(gridCapInput.value) || 10);
+            lives = 3;
+            levelDisplay.textContent = level;
+            livesDisplay.textContent = lives;
+            overlay.classList.add("hidden");
+            isGameRunning = true;
+            isPaused = false;
+            generateGrid();
+        }
+
+        function generateGrid() {
+            if (!isGameRunning || isPaused) return;
+            grid.innerHTML = "";
+            size = Math.min(getGridSize(level), gridCap);
+            grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+            grid.style.gridTemplateRows = `repeat(${size}, 1fr)`;
+            cells = []; highlighted.clear(); selected.clear();
+            clickable = false; misclicks = 0;
+
+            const total = size * size;
+            for (let i = 0; i < total; i++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.dataset.index = i;
+
+                cell.addEventListener("mousedown", (e) => { if (dragSelectEnabled) handleCellSelect(e); });
+                cell.addEventListener("mouseenter", (e) => { if (dragSelectEnabled && isMouseDown) handleCellSelect(e); });
+                cell.addEventListener("touchstart", (e) => { if (dragSelectEnabled) { e.preventDefault(); handleCellSelect(e); } }, { passive: false });
+                cell.addEventListener("touchmove", (e) => {
+                    if (dragSelectEnabled) {
+                        e.preventDefault();
+                        const touch = e.touches[0];
+                        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                        if (target && target.classList.contains('cell')) handleCellSelect({ currentTarget: target, preventDefault: () => { } });
+                    }
+                }, { passive: false });
+                cell.addEventListener("click", (e) => { if (!dragSelectEnabled) handleCellSelect(e); });
+
+                grid.appendChild(cell);
+                cells.push(cell);
+            }
+
+            highlightCount = level + 2;
+            const indices = [...Array(total).keys()];
+            for (let i = 0; i < highlightCount; i++) {
+                const rand = indices.splice(Math.floor(Math.random() * indices.length), 1)[0];
+                highlighted.add(rand);
+            }
+            showHighlights();
+        }
+
+        function showHighlights() {
+            if (!isGameRunning) return;
+            playShowSound();
+            highlighted.forEach(i => cells[i].classList.add("highlight"));
+
+            setTimeout(() => {
+                if (!isGameRunning) return;
+                highlighted.forEach(i => cells[i].classList.remove("highlight"));
+                // Only make clickable if the game didn't get paused during the timeout
+                if (!isPaused) clickable = true;
+            }, Math.max(1000, highlightCount * 300));
+        }
+
+        function highlightMissed() {
+            selected.forEach(i => { if (!highlighted.has(i)) cells[i].classList.add("wrong"); });
+            highlighted.forEach(i => { if (!selected.has(i)) cells[i].classList.add("missed"); });
+        }
+
+        function handleCellSelect(e) {
+            if (!clickable || !isGameRunning || isPaused) return;
+            if (e.preventDefault) e.preventDefault();
+            const i = +e.currentTarget.dataset.index;
+            if (selected.has(i)) return;
+
+            selected.add(i);
+            if (highlighted.has(i)) {
+                e.currentTarget.classList.add("selected");
+                playCorrect();
+            } else {
+                e.currentTarget.classList.add("wrong");
+                playWrong();
+                misclicks++;
+                if (misclicks >= 3) {
+                    lives--; livesDisplay.textContent = lives; clickable = false; highlightMissed();
+                    if (lives <= 0) {
+                        setTimeout(() => { if (isGameRunning) { playGameOver(); showOverlay("game over", `you reached level ${level}`, true); } }, 1200);
+                        return;
+                    }
+                    setTimeout(generateGrid, 1200);
+                    return;
+                }
+            }
+
+            if (selected.size >= highlighted.size && isCorrect()) {
+                clickable = false; level++; levelDisplay.textContent = level; playLevelUp();
+                setTimeout(generateGrid, 700);
+            }
+        }
+
+        function isCorrect() {
+            for (let i of highlighted) { if (!selected.has(i)) return false; }
+            return true;
+        }
+
+        // ===== EVENT LISTENERS =====
+        startBtn.addEventListener("click", () => {
+            if (isPaused) {
+                // Resume logic if button is clicked while paused
+                isPaused = false;
+                playCorrect();
+                overlay.classList.add("hidden");
+                // Check if highlights are currently showing
+                const isShowing = cells.some(c => c.classList.contains('highlight'));
+                clickable = !isShowing;
+            } else {
+                startGame();
+            }
+        });
+
+        dragToggle.addEventListener("click", () => {
+            dragSelectEnabled = !dragSelectEnabled;
+            dragToggle.textContent = `Tweaks: Drag Select [${dragSelectEnabled ? 'ON' : 'OFF'}]`;
+            dragToggle.classList.toggle("active", dragSelectEnabled);
+        });
+
+        document.addEventListener('mousedown', () => { isMouseDown = true; });
+        document.addEventListener('mouseup', () => { isMouseDown = false; });
+
+        // ESC TO PAUSE / UNPAUSE
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && isGameRunning) {
+                isPaused = !isPaused;
+
+                if (isPaused) {
+                    playQuit();
+                    clickable = false; // Block clicks immediately
+                    overlayTitle.textContent = "paused";
+                    overlayDesc.textContent = "press esc to resume";
+                    startBtn.textContent = "Resume";
+                    overlay.classList.remove("hidden");
+                } else {
+                    playCorrect(); // Subtle unpause sound
+                    overlay.classList.add("hidden");
+                    // Re-evaluate clickable state based on whether highlights are showing
+                    const isShowing = cells.some(c => c.classList.contains('highlight'));
+                    clickable = !isShowing;
+                }
+            }
+        });
+
+    </script>
+</body>
+
+</html>
