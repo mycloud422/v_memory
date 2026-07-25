@@ -9,4 +9,8 @@ This one will feature:
 + Ability to pause the game using the "esc" key.
 + More features coming soon!
 
+# deployment
+
+You can click on the project website to test it out immediately.
+
 
