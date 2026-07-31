@@ -1,9 +1,8 @@
 # Overview
 
-This project is a new and improved version of my previous visual memory game, which I developed a year ago.
+This project is a revamped version of a visual memory game I built a year ago, originally created as a fork of the Human Benchmark visual memory app.
 
-
-This one will feature:
+Features include:
 + A more modern design in line with my other coding projects.
 + A feature called tweaks, which allows users to hold to auto-select cells.
 + Ability to pause the game using the "Esc" key.
